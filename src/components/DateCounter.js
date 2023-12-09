@@ -1,43 +1,59 @@
-import { useState } from "react";
+import { useReducer } from 'react';
 
+const initialState = { count: 0, step: 1 };
+
+function reducer(state, action) {
+  console.log(state, action);
+  switch (action.type) {
+    case 'INC':
+      return { ...state, count: state.count + state.step };
+    case 'DEC':
+      return { ...state, count: state.count - state.step };
+    case 'SET_COUNT':
+      return { ...state, count: action.payload };
+    case 'SET_STEP':
+      return { ...state, step: action.payload };
+    case 'RESET_ALL':
+      return initialState;
+    default:
+      return state;
+  }
+}
 function DateCounter() {
-  const [count, setCount] = useState(0);
-  const [step, setStep] = useState(1);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { count, step } = state;
 
   // This mutates the date object.
-  const date = new Date("june 21 2027");
+  const date = new Date('june 21 2027');
   date.setDate(date.getDate() + count);
 
   const dec = function () {
-    // setCount((count) => count - 1);
-    setCount((count) => count - step);
+    dispatch({ type: 'DEC' });
   };
 
   const inc = function () {
-    // setCount((count) => count + 1);
-    setCount((count) => count + step);
+    dispatch({ type: 'INC' });
   };
 
   const defineCount = function (e) {
-    setCount(Number(e.target.value));
+    dispatch({ type: 'SET_COUNT', payload: Number(e.target.value) });
   };
 
   const defineStep = function (e) {
-    setStep(Number(e.target.value));
+    dispatch({ type: 'SET_STEP', payload: Number(e.target.value) });
   };
 
   const reset = function () {
-    setCount(0);
-    setStep(1);
+    dispatch({ type: 'RESET_ALL' });
   };
 
   return (
-    <div className="counter">
+    <div className='counter'>
       <div>
         <input
-          type="range"
-          min="0"
-          max="10"
+          type='range'
+          min='0'
+          max='10'
           value={step}
           onChange={defineStep}
         />
