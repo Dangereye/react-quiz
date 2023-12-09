@@ -3,7 +3,6 @@ import { useReducer } from 'react';
 const initialState = { count: 0, step: 1 };
 
 function reducer(state, action) {
-  console.log(state, action);
   switch (action.type) {
     case 'INC':
       return { ...state, count: state.count + state.step };
@@ -19,7 +18,7 @@ function reducer(state, action) {
       return state;
   }
 }
-function DateCounter() {
+export default function DateCounter() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { count, step } = state;
 
@@ -74,4 +73,3 @@ function DateCounter() {
     </div>
   );
 }
-export default DateCounter;
