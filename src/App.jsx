@@ -10,6 +10,10 @@ import Questions from './components/Questions';
 import NextButton from './components/NextButton';
 import Progress from './components/Progress';
 import FinishScreen from './components/FinishScreen';
+import Timer from './components/Timer';
+import Footer from './components/Footer';
+
+const secsPerQuestion = 30;
 
 const initialState = {
   questions: [],
@@ -19,6 +23,7 @@ const initialState = {
   answer: null,
   points: 0,
   highscore: 0,
+  secondsRemaining: null,
 };
 
 function reducer(state, action) {
@@ -28,7 +33,11 @@ function reducer(state, action) {
     case 'DATA_ERROR':
       return { ...state, status: 'error' };
     case 'START':
-      return { ...state, status: 'active' };
+      return {
+        ...state,
+        status: 'active',
+        secondsRemaining: state.questions.length * secsPerQuestion,
+      };
     case 'SUBMIT_ANSWER':
       const question = state.questions.at(state.index);
       return {
@@ -49,15 +58,30 @@ function reducer(state, action) {
           state.points > state.highscore ? state.points : state.highscore,
       };
     case 'RESTART':
-      return { ...state, status: 'ready', index: 0, answer: null, points: 0 };
+      return {
+        ...state,
+        status: 'ready',
+        index: 0,
+        answer: null,
+        points: 0,
+        secondsRemaining: null,
+      };
+    case 'TICKTOCK':
+      return {
+        ...state,
+        secondsRemaining: state.secondsRemaining - 1,
+        status: state.secondsRemaining === 0 ? 'finished' : state.status,
+      };
     default:
       return state;
   }
 }
 
 export default function App() {
-  const [{ questions, status, index, answer, points, highscore }, dispatch] =
-    useReducer(reducer, initialState);
+  const [
+    { questions, status, index, answer, points, highscore, secondsRemaining },
+    dispatch,
+  ] = useReducer(reducer, initialState);
   const numQuestions = questions.length;
   const maxPoints = questions.reduce((prev, cur) => prev + cur.points, 0);
 
@@ -99,12 +123,15 @@ export default function App() {
               dispatch={dispatch}
               answer={answer}
             />
-            <NextButton
-              answer={answer}
-              index={index}
-              numQuestions={numQuestions}
-              dispatch={dispatch}
-            />
+            <Footer>
+              <Timer secondsRemaining={secondsRemaining} dispatch={dispatch} />
+              <NextButton
+                answer={answer}
+                index={index}
+                numQuestions={numQuestions}
+                dispatch={dispatch}
+              />
+            </Footer>
           </>
         )}
         {status === 'finished' && (
